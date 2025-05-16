@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+.DS_Store
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Data files (if they're large)
+# Uncomment if needed
+# data/*.csv
+
+# IDE specific files
+.idea/
+.vscode/
