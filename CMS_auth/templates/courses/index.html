@@ -29,21 +29,25 @@
             <form method="GET" action="{{ url_for('courses_index') }}" class="row g-3">
                 <div class="col-md-4">
                     <label for="search" class="form-label">Search</label>
-                    <input type="text" class="form-control" id="search" name="search" placeholder="Search by title or code...">
+                    <input type="text" class="form-control" id="search" name="search" value="{{ search }}" placeholder="Search by title or code...">
                 </div>
                 <div class="col-md-3">
                     <label for="instructor" class="form-label">Instructor</label>
                     <select class="form-select" id="instructor" name="instructor">
                         <option value="">All Instructors</option>
-                        <!-- Instructors would be dynamically loaded here -->
+                        {% for instructor in instructors %}
+                            <option value="{{ instructor.id }}" {% if instructor_id|string == instructor.id|string %}selected{% endif %}>
+                                {{ instructor.get_full_name() }}
+                            </option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label for="status" class="form-label">Status</label>
                     <select class="form-select" id="status" name="status">
                         <option value="">All</option>
-                        <option value="active" selected>Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
                     </select>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">

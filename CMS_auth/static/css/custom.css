@@ -5,6 +5,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 main {
@@ -183,4 +184,110 @@ footer a {
 
 [data-bs-theme=dark] .modal-content {
     background-color: var(--bs-dark);
+}
+
+/* Light/Dark Mode Toggle */
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.85);
+    padding: 0.3rem 0.5rem;
+    border-radius: 50%;
+    margin-left: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.theme-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="light"] .theme-toggle-btn {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+[data-bs-theme="light"] .theme-toggle-btn:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle-btn .sun-icon,
+.theme-toggle-btn .moon-icon {
+    transition: transform 0.5s, opacity 0.5s;
+}
+
+[data-bs-theme="dark"] .theme-toggle-btn .sun-icon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+[data-bs-theme="dark"] .theme-toggle-btn .moon-icon {
+    opacity: 0;
+    transform: rotate(90deg);
+    position: absolute;
+}
+
+[data-bs-theme="light"] .theme-toggle-btn .sun-icon {
+    opacity: 0;
+    transform: rotate(-90deg);
+    position: absolute;
+}
+
+[data-bs-theme="light"] .theme-toggle-btn .moon-icon {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+
+/* Theme-specific styles */
+[data-bs-theme="dark"] {
+    --bs-body-bg: #212529;
+    --bs-body-color: #f8f9fa;
+}
+
+[data-bs-theme="dark"] .navbar {
+    background-color: #343a40 !important;
+}
+
+[data-bs-theme="dark"] .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+[data-bs-theme="dark"] .navbar-brand {
+    color: white;
+}
+
+[data-bs-theme="dark"] footer {
+    background-color: #343a40 !important;
+    color: white;
+}
+
+[data-bs-theme="light"] {
+    --bs-body-bg: #f8f9fa;
+    --bs-body-color: #212529;
+}
+
+[data-bs-theme="light"] .navbar {
+    background-color: #f8f9fa !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+[data-bs-theme="light"] .navbar-nav .nav-link {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+[data-bs-theme="light"] .navbar-brand {
+    color: #212529;
+}
+
+[data-bs-theme="light"] footer {
+    background-color: #f8f9fa !important;
+    color: #212529;
+    border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+[data-bs-theme="light"] footer a {
+    color: #0d6efd !important;
 }
