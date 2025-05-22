@@ -43,7 +43,7 @@
                     <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Profile</h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('profile') }}">
+                    <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
                         
                         <div class="row mb-3">
@@ -121,6 +121,21 @@
                         {% endif %}
                         
                         <div class="mb-3">
+                            {{ form.profile_image.label(class="form-label") }}
+                            {% if form.profile_image.errors %}
+                                {{ form.profile_image(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.profile_image.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.profile_image(class="form-control") }}
+                            {% endif %}
+                            <div class="form-text">Upload an image (JPG, JPEG, or PNG only).</div>
+                        </div>
+                        
+                        <div class="mb-3">
                             {{ form.profile_image_url.label(class="form-label") }}
                             {% if form.profile_image_url.errors %}
                                 {{ form.profile_image_url(class="form-control is-invalid") }}
@@ -132,7 +147,7 @@
                             {% else %}
                                 {{ form.profile_image_url(class="form-control") }}
                             {% endif %}
-                            <div class="form-text">Enter a URL to your profile image.</div>
+                            <div class="form-text">{{ form.profile_image_url.description }}</div>
                         </div>
                         
                         <div class="d-grid">

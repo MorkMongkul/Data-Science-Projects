@@ -154,6 +154,23 @@ def dashboard():
                                enrolled_courses=enrolled_courses,
                                available_courses=available_courses)
 
+def save_profile_image(image_file):
+    """Save the uploaded profile image and return its URL path."""
+    if not image_file:
+        return None
+        
+    filename = secure_filename(image_file.filename)
+    # Create an 'uploads/profiles' directory for profile images
+    profile_upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], 'profiles')
+    os.makedirs(profile_upload_dir, exist_ok=True)
+    
+    # Save the file
+    file_path = os.path.join(profile_upload_dir, filename)
+    image_file.save(file_path)
+    
+    # Return the URL path using url_for
+    return url_for('uploaded_file', filename=f'profiles/{filename}')
+
 # User profile
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -172,8 +189,12 @@ def profile():
         # Only admin can change roles
         if current_user.is_admin():
             current_user.role = form.role.data
-            
-        current_user.profile_image_url = form.profile_image_url.data
+        
+        # Handle profile image upload
+        if form.profile_image.data:
+            current_user.profile_image_url = save_profile_image(form.profile_image.data)
+        elif form.profile_image_url.data:
+            current_user.profile_image_url = form.profile_image_url.data
         
         db.session.commit()
         flash('Your profile has been updated!', 'success')
@@ -226,7 +247,12 @@ def admin_edit_user(user_id):
         user.first_name = form.first_name.data
         user.last_name = form.last_name.data
         user.role = form.role.data
-        user.profile_image_url = form.profile_image_url.data
+        
+        # Handle profile image upload
+        if form.profile_image.data:
+            user.profile_image_url = save_profile_image(form.profile_image.data)
+        elif form.profile_image_url.data:
+            user.profile_image_url = form.profile_image_url.data
         
         db.session.commit()
         flash(f'User {user.username} has been updated!', 'success')
@@ -267,8 +293,39 @@ def admin_courses():
 @app.route('/admin/enrollments')
 @admin_required
 def admin_enrollments():
-    enrollments = Enrollment.query.all()
-    return render_template('admin/enrollments.html', enrollments=enrollments)
+    # Get filter parameters
+    student_query = request.args.get('student', '')
+    course_query = request.args.get('course', '')
+    status = request.args.get('status', '')
+    
+    # Build query
+    query = Enrollment.query
+    
+    # Apply filters
+    if student_query:
+        query = query.join(User, User.id == Enrollment.student_id).filter(
+            (User.first_name.ilike(f'%{student_query}%')) | 
+            (User.last_name.ilike(f'%{student_query}%')) |
+            (User.username.ilike(f'%{student_query}%'))
+        )
+    
+    if course_query:
+        query = query.join(Course, Course.id == Enrollment.course_id).filter(
+            (Course.title.ilike(f'%{course_query}%')) | 
+            (Course.code.ilike(f'%{course_query}%'))
+        )
+    
+    if status:
+        query = query.filter(Enrollment.status == status)
+    
+    # Execute query
+    enrollments = query.all()
+    
+    return render_template('admin/enrollments.html', 
+                          enrollments=enrollments,
+                          student_query=student_query,
+                          course_query=course_query,
+                          status=status)
 
 @app.route('/admin/enrollments/delete/<int:enrollment_id>', methods=['POST'])
 @admin_required
@@ -284,8 +341,44 @@ def admin_delete_enrollment(enrollment_id):
 # Course routes
 @app.route('/courses')
 def courses_index():
-    courses = Course.query.filter_by(is_active=True).all()
-    return render_template('courses/index.html', courses=courses)
+    # Get filter parameters
+    search = request.args.get('search', '')
+    instructor_id = request.args.get('instructor', '')
+    status = request.args.get('status', 'active')
+    
+    # Build query
+    query = Course.query
+    
+    # Apply filters
+    if search:
+        query = query.filter(
+            (Course.title.ilike(f'%{search}%')) | 
+            (Course.code.ilike(f'%{search}%')) |
+            (Course.description.ilike(f'%{search}%'))
+        )
+    
+    if instructor_id and instructor_id.isdigit():
+        query = query.filter(Course.instructor_id == int(instructor_id))
+    
+    if status == 'active':
+        query = query.filter(Course.is_active == True)
+    elif status == 'inactive':
+        query = query.filter(Course.is_active == False)
+    
+    # Get instructors for the filter dropdown
+    instructors = User.query.filter(
+        (User.role == Role.INSTRUCTOR) | (User.role == Role.ADMIN)
+    ).all()
+    
+    # Execute query
+    courses = query.all()
+    
+    return render_template('courses/index.html', 
+                          courses=courses, 
+                          instructors=instructors,
+                          search=search,
+                          instructor_id=instructor_id,
+                          status=status)
 
 def save_thumbnail(thumbnail_file):
     """Save the uploaded thumbnail and return its URL path."""

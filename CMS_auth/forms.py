@@ -35,7 +35,12 @@ class UserUpdateForm(FlaskForm):
     first_name = StringField('First Name', validators=[Optional(), Length(max=50)])
     last_name = StringField('Last Name', validators=[Optional(), Length(max=50)])
     role = SelectField('Role', choices=[(role, role.capitalize()) for role in Role.all_roles()])
-    profile_image_url = StringField('Profile Image URL', validators=[Optional()])
+    profile_image = FileField('Profile Image', validators=[
+        Optional(),
+        FileAllowed(['jpg', 'jpeg', 'png'], 'Images only!')
+    ])
+    profile_image_url = StringField('Profile Image URL', validators=[Optional()], 
+                                  description='If no image is uploaded, you can provide a URL instead')
     submit = SubmitField('Update')
     
     def __init__(self, original_username, original_email, *args, **kwargs):

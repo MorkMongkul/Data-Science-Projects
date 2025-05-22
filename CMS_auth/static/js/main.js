@@ -133,4 +133,48 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Theme toggling functionality
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    
+    if (themeToggleBtn) {
+        // Update button state based on current theme
+        function updateButtonState() {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'dark';
+            // Update toggle button appearance based on theme
+            if (currentTheme === 'dark') {
+                themeToggleBtn.setAttribute('title', 'Switch to light mode');
+                themeToggleBtn.querySelector('.sun-icon').style.opacity = '1';
+                themeToggleBtn.querySelector('.moon-icon').style.opacity = '0';
+            } else {
+                themeToggleBtn.setAttribute('title', 'Switch to dark mode');
+                themeToggleBtn.querySelector('.sun-icon').style.opacity = '0';
+                themeToggleBtn.querySelector('.moon-icon').style.opacity = '1';
+            }
+        }
+        
+        // Set initial state of toggle button
+        updateButtonState();
+        
+        // Toggle theme when the button is clicked
+        themeToggleBtn.addEventListener('click', function() {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            // Use the setTheme function from theme.js if available
+            if (typeof window.setTheme === 'function') {
+                window.setTheme(newTheme);
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', newTheme);
+            }
+            
+            // Save the preference
+            localStorage.setItem('theme', newTheme);
+            
+            // Update button state
+            updateButtonState();
+            
+            console.log('Theme switched to:', newTheme); // Debugging
+        });
+    }
 });
