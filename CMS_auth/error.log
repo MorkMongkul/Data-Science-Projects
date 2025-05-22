@@ -1,0 +1,99 @@
+2025-05-21 22:46:40,161 INFO: Database tables created [in /Users/macbookair/Documents/Big Data Projects/CMS_auth/app.py:62]
+ * Debug mode: on
+2025-05-21 22:46:40,222 INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5001 [in /Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/werkzeug/_internal.py:97]
+2025-05-21 22:46:40,223 INFO: [33mPress CTRL+C to quit[0m [in /Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/werkzeug/_internal.py:97]
+2025-05-21 22:46:40,223 INFO:  * Restarting with stat [in /Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/werkzeug/_internal.py:97]
+2025-05-21 22:46:42,439 INFO: Database tables created [in /Users/macbookair/Documents/Big Data Projects/CMS_auth/app.py:62]
+2025-05-21 22:46:42,486 WARNING:  * Debugger is active! [in /Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/werkzeug/_internal.py:97]
+2025-05-21 22:46:42,499 INFO:  * Debugger PIN: 186-623-079 [in /Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/werkzeug/_internal.py:97]
+2025-05-21 22:46:55,376 INFO: 127.0.0.1 - - [21/May/2025 22:46:55] "[35m[1mGET / HTTP/1.1[0m" 500 - [in /Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/werkzeug/_internal.py:97]
+Traceback (most recent call last):
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1963, in _exec_single_context
+    self.dialect.do_execute(
+    ^
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/engine/default.py", line 943, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.errors.UndefinedColumn: column courses.thumbnail_url does not exist
+LINE 2: ...ve, courses.max_students AS courses_max_students, courses.th...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/flask/app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/werkzeug/middleware/proxy_fix.py", line 183, in __call__
+    return self.app(environ, start_response)
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/flask/app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/routes.py", line 21, in index
+    course_count = Course.query.filter_by(is_active=True).count()
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/orm/query.py", line 3146, in count
+    self._legacy_from_self(col).enable_eagerloads(False).scalar()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/orm/query.py", line 2835, in scalar
+    ret = self.one()
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/orm/query.py", line 2808, in one
+    return self._iter().one()  # type: ignore
+           ~~~~~~~~~~^^
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/orm/query.py", line 2857, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+    
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 2365, in execute
+    return self._execute_internal(
+    
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+    
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/orm/context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+    
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1415, in execute
+    return meth(
+    
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/sql/elements.py", line 523, in _execute_on_connection
+    return connection._execute_clauseelement(
+    
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1637, in _execute_clauseelement
+    ret = self._execute_context(
+    
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+    
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1982, in _exec_single_context
+    self._handle_dbapi_exception(
+    ^
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 2351, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1963, in _exec_single_context
+    self.dialect.do_execute(
+    ^
+  File "/Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/sqlalchemy/engine/default.py", line 943, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column courses.thumbnail_url does not exist
+LINE 2: ...ve, courses.max_students AS courses_max_students, courses.th...
+                                                             ^
+
+[SQL: SELECT count(*) AS count_1 
+FROM (SELECT courses.id AS courses_id, courses.title AS courses_title, courses.description AS courses_description, courses.instructor_id AS courses_instructor_id, courses.code AS courses_code, courses.created_at AS courses_created_at, courses.updated_at AS courses_updated_at, courses.start_date AS courses_start_date, courses.end_date AS courses_end_date, courses.is_active AS courses_is_active, courses.max_students AS courses_max_students, courses.thumbnail_url AS courses_thumbnail_url 
+FROM courses 
+WHERE courses.is_active = true) AS anon_1]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-05-21 22:46:55,397 INFO: 127.0.0.1 - - [21/May/2025 22:46:55] "[36mGET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 - [in /Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/werkzeug/_internal.py:97]
+2025-05-21 22:46:55,399 INFO: 127.0.0.1 - - [21/May/2025 22:46:55] "[36mGET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 - [in /Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/werkzeug/_internal.py:97]
+2025-05-21 22:46:55,405 INFO: 127.0.0.1 - - [21/May/2025 22:46:55] "GET /?__debugger__=yes&cmd=resource&f=console.png&s=gI0wKrJWB61mVMIAIB0p HTTP/1.1" 200 - [in /Users/macbookair/Documents/Big Data Projects/CMS_auth/venv/lib/python3.13/site-packages/werkzeug/_internal.py:97]
