@@ -58,7 +58,7 @@ pip install -r requirements.txt
 
 4. Set up environment variables:
 ```bash
-cp .env.example .env
+cp env.example .env
 # Edit .env with your configuration
 ```
 
@@ -71,6 +71,41 @@ flask db upgrade
 ```bash
 flask run
 ```
+
+## Deployment on Render
+
+This application can be easily deployed to Render.com by following these steps:
+
+1. Create a [Render account](https://render.com) if you don't have one
+
+2. Create a new PostgreSQL database in Render:
+   - Go to Dashboard > New > PostgreSQL
+   - Provide a name for your database
+   - Select a suitable plan
+   - Note your database connection details for use in the environment variables
+
+3. Create a new Web Service in Render:
+   - Go to Dashboard > New > Web Service
+   - Connect your GitHub repository
+   - Fill in the following details:
+     - **Name**: Your application name
+     - **Environment**: Python 3
+     - **Build Command**: `./build.sh`
+     - **Start Command**: `gunicorn -c gunicorn.conf.py main:app`
+     - **Branch**: main (or your deployment branch)
+
+4. Set the environment variables under the "Environment" tab:
+   - `FLASK_APP`: main.py
+   - `FLASK_ENV`: production
+   - `SECRET_KEY`: (generate a secure random key)
+   - `WTF_CSRF_SECRET_KEY`: (generate a secure random key)
+   - `DATABASE_URL`: (use the Internal Database URL from your PostgreSQL service)
+
+5. Enable automatic deploys if desired
+
+6. Click "Create Web Service" and Render will build and deploy your application
+
+Your application will be available at your Render-provided URL once the deployment process completes.
 
 ## Project Structure
 
