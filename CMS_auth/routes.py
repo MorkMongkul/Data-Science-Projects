@@ -13,6 +13,7 @@ from forms import (
     EnrollmentForm, PasswordChangeForm, CourseVideoForm
 )
 from auth import admin_required, instructor_required, instructor_or_admin_required
+from s3_utils import S3Handler
 
 # Home page
 @app.route('/')
@@ -158,18 +159,16 @@ def save_profile_image(image_file):
     """Save the uploaded profile image and return its URL path."""
     if not image_file:
         return None
-        
-    filename = secure_filename(image_file.filename)
-    # Create an 'uploads/profiles' directory for profile images
-    profile_upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], 'profiles')
-    os.makedirs(profile_upload_dir, exist_ok=True)
     
-    # Save the file
-    file_path = os.path.join(profile_upload_dir, filename)
-    image_file.save(file_path)
-    
-    # Return the URL path using url_for
-    return url_for('uploaded_file', filename=f'profiles/{filename}')
+    # Use S3 directly
+    s3 = S3Handler()
+    return s3.upload_file(image_file, folder='profiles')
+
+def delete_old_s3_image(url):
+    """Delete an old image from S3 if it exists."""
+    if url and 's3.' in url:  # Only delete if it's an S3 URL
+        s3 = S3Handler()
+        s3.delete_file(url)
 
 # User profile
 @app.route('/profile', methods=['GET', 'POST'])
@@ -192,8 +191,13 @@ def profile():
         
         # Handle profile image upload
         if form.profile_image.data:
+            # Delete old S3 image if exists
+            delete_old_s3_image(current_user.profile_image_url)
+            # Upload new image to S3
             current_user.profile_image_url = save_profile_image(form.profile_image.data)
         elif form.profile_image_url.data:
+            # Delete old S3 image if exists
+            delete_old_s3_image(current_user.profile_image_url)
             current_user.profile_image_url = form.profile_image_url.data
         
         db.session.commit()
@@ -384,17 +388,10 @@ def save_thumbnail(thumbnail_file):
     """Save the uploaded thumbnail and return its URL path."""
     if not thumbnail_file:
         return None
-        
-    filename = secure_filename(thumbnail_file.filename)
-    # Create upload folder if it doesn't exist
-    os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
     
-    # Save the file
-    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-    thumbnail_file.save(file_path)
-    
-    # Return the URL path using url_for
-    return url_for('uploaded_file', filename=filename)
+    # Use S3 directly
+    s3 = S3Handler()
+    return s3.upload_file(thumbnail_file, folder='thumbnails')
 
 @app.route('/courses/create', methods=['GET', 'POST'])
 @instructor_or_admin_required
@@ -466,13 +463,9 @@ def edit_course(course_id):
         # Handle thumbnail upload
         thumbnail_url = form.thumbnail_url.data
         if form.thumbnail.data:
-            # Delete old thumbnail if it exists and is a local file
-            if course.thumbnail_url and 'uploaded_file' in course.thumbnail_url:
-                old_filename = os.path.basename(course.thumbnail_url)
-                old_file = os.path.join(current_app.config['UPLOAD_FOLDER'], old_filename)
-                if os.path.exists(old_file):
-                    os.remove(old_file)
-            
+            # Delete old S3 thumbnail if exists
+            delete_old_s3_image(course.thumbnail_url)
+            # Upload new thumbnail to S3
             thumbnail_url = save_thumbnail(form.thumbnail.data)
             
         course.title = form.title.data
