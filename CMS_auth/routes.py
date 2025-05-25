@@ -194,29 +194,46 @@ def profile():
     )
     
     if form.validate_on_submit():
-        current_user.username = form.username.data
-        current_user.email = form.email.data
-        current_user.first_name = form.first_name.data
-        current_user.last_name = form.last_name.data
-        
-        # Only admin can change roles
-        if current_user.is_admin():
-            current_user.role = form.role.data
-        
-        # Handle profile image upload
-        if form.profile_image.data:
-            # Delete old S3 image if exists
-            delete_old_s3_image(current_user.profile_image_url)
-            # Upload new image to S3
-            current_user.profile_image_url = save_profile_image(form.profile_image.data)
-        elif form.profile_image_url.data:
-            # Delete old S3 image if exists
-            delete_old_s3_image(current_user.profile_image_url)
-            current_user.profile_image_url = form.profile_image_url.data
-        
-        db.session.commit()
-        flash('Your profile has been updated!', 'success')
-        return redirect(url_for('profile'))
+        try:
+            current_user.username = form.username.data
+            current_user.email = form.email.data
+            current_user.first_name = form.first_name.data
+            current_user.last_name = form.last_name.data
+            
+            # Only admin can change roles
+            if current_user.is_admin():
+                current_user.role = form.role.data
+            
+            # Handle profile image upload
+            if form.profile_image.data:
+                try:
+                    # Delete old S3 image if exists
+                    if current_user.profile_image_url:
+                        delete_old_s3_image(current_user.profile_image_url)
+                    
+                    # Upload new image
+                    new_image_url = save_profile_image(form.profile_image.data)
+                    if new_image_url:
+                        current_user.profile_image_url = new_image_url
+                    else:
+                        flash('Failed to upload profile image', 'warning')
+                except Exception as e:
+                    app.logger.error(f"Error handling profile image: {str(e)}")
+                    flash('Error processing profile image', 'warning')
+            elif form.profile_image_url.data:
+                # Delete old S3 image if exists
+                if current_user.profile_image_url:
+                    delete_old_s3_image(current_user.profile_image_url)
+                current_user.profile_image_url = form.profile_image_url.data
+            
+            db.session.commit()
+            flash('Your profile has been updated!', 'success')
+            return redirect(url_for('profile'))
+            
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error updating profile for user {current_user.id}: {str(e)}")
+            flash('An error occurred while updating your profile. Please try again.', 'danger')
     
     elif request.method == 'GET':
         form.username.data = current_user.username
@@ -260,21 +277,55 @@ def admin_edit_user(user_id):
     form = UserUpdateForm(original_username=user.username, original_email=user.email)
     
     if form.validate_on_submit():
-        user.username = form.username.data
-        user.email = form.email.data
-        user.first_name = form.first_name.data
-        user.last_name = form.last_name.data
-        user.role = form.role.data
-        
-        # Handle profile image upload
-        if form.profile_image.data:
-            user.profile_image_url = save_profile_image(form.profile_image.data)
-        elif form.profile_image_url.data:
-            user.profile_image_url = form.profile_image_url.data
-        
-        db.session.commit()
-        flash(f'User {user.username} has been updated!', 'success')
-        return redirect(url_for('admin_users'))
+        try:
+            # Store old role for validation
+            old_role = user.role
+            
+            user.username = form.username.data
+            user.email = form.email.data
+            user.first_name = form.first_name.data
+            user.last_name = form.last_name.data
+            
+            # Check if role change is safe
+            if form.role.data != old_role:
+                if old_role == Role.INSTRUCTOR and form.role.data != Role.INSTRUCTOR:
+                    # Check if user has active courses
+                    if Course.query.filter_by(instructor_id=user.id, is_active=True).first():
+                        flash('Cannot change role: User has active courses as instructor', 'danger')
+                        return redirect(url_for('admin_users'))
+            
+            user.role = form.role.data
+            
+            # Handle profile image upload
+            if form.profile_image.data:
+                try:
+                    # Delete old S3 image if exists
+                    if user.profile_image_url:
+                        delete_old_s3_image(user.profile_image_url)
+                    
+                    # Upload new image
+                    new_image_url = save_profile_image(form.profile_image.data)
+                    if new_image_url:
+                        user.profile_image_url = new_image_url
+                    else:
+                        flash('Failed to upload profile image', 'warning')
+                except Exception as e:
+                    app.logger.error(f"Error handling profile image: {str(e)}")
+                    flash('Error processing profile image', 'warning')
+            elif form.profile_image_url.data:
+                # Delete old S3 image if exists
+                if user.profile_image_url:
+                    delete_old_s3_image(user.profile_image_url)
+                user.profile_image_url = form.profile_image_url.data
+            
+            db.session.commit()
+            flash(f'User {user.username} has been updated!', 'success')
+            return redirect(url_for('admin_users'))
+            
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error updating user {user_id}: {str(e)}")
+            flash('An error occurred while updating the user. Please try again.', 'danger')
     
     elif request.method == 'GET':
         form.username.data = user.username
