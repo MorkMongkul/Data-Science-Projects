@@ -1,4 +1,8 @@
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class Config:
     """Base configuration class for the application."""
@@ -17,6 +21,12 @@ class Config:
     # Flask-WTF
     WTF_CSRF_ENABLED = True
     WTF_CSRF_SECRET_KEY = os.environ.get('WTF_CSRF_SECRET_KEY', 'csrf_development_key')
+    
+    # AWS S3 Settings
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    AWS_BUCKET_NAME = os.environ.get('AWS_BUCKET_NAME')
+    AWS_REGION = os.environ.get('AWS_REGION', 'us-east-1')
     
     # Upload settings
     UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static/uploads')

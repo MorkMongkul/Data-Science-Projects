@@ -11,7 +11,11 @@ class LoginForm(FlaskForm):
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=3, max=64)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    email = StringField('Email', validators=[
+        DataRequired(),
+        Email(message="Please enter a valid email address."),
+        Length(min=5, max=120, message="Email must be between 5 and 120 characters long.")
+    ])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     first_name = StringField('First Name', validators=[Optional(), Length(max=50)])
@@ -25,9 +29,16 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('That username is already taken. Please choose a different one.')
     
     def validate_email(self, email):
+        # Check if email already exists
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('That email is already registered. Please use a different one.')
+        
+        # Check email domain
+        email_domain = email.data.split('@')[1].lower()
+        disposable_domains = ['tempmail.com', 'temp-mail.org', 'throwawaymail.com']
+        if email_domain in disposable_domains:
+            raise ValidationError('Disposable email addresses are not allowed. Please use a valid email address.')
 
 class UserUpdateForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=3, max=64)])

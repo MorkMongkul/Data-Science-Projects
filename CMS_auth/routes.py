@@ -23,24 +23,27 @@ def index():
     user_count = User.query.count()
     enrollment_count = Enrollment.query.count()
     
-    # Get featured courses (most enrolled)
-    featured_courses = db.session.query(
-        Course, func.count(Enrollment.id).label('enrollment_count')
-    ).join(
-        Enrollment
-    ).filter(
-        Course.is_active == True
-    ).group_by(
-        Course.id
-    ).order_by(
-        func.count(Enrollment.id).desc()
-    ).limit(3).all()
+    # Get featured courses (most enrolled) only for authenticated users
+    featured_courses = []
+    if current_user.is_authenticated:
+        featured_courses = db.session.query(
+            Course, func.count(Enrollment.id).label('enrollment_count')
+        ).join(
+            Enrollment
+        ).filter(
+            Course.is_active == True
+        ).group_by(
+            Course.id
+        ).order_by(
+            func.count(Enrollment.id).desc()
+        ).limit(3).all()
+        featured_courses = [c[0] for c in featured_courses]
     
     return render_template('index.html', 
                            course_count=course_count,
                            user_count=user_count,
                            enrollment_count=enrollment_count,
-                           featured_courses=[c[0] for c in featured_courses])
+                           featured_courses=featured_courses)
 
 # Authentication routes
 @app.route('/login', methods=['GET', 'POST'])
@@ -62,6 +65,9 @@ def login():
                 logging.info("Password check successful")
                 login_user(user)
                 next_page = request.args.get('next')
+                # Make sure next_page is safe (relative URL)
+                if next_page and not next_page.startswith('/'):
+                    next_page = None
                 flash(f'Welcome back, {user.username}!', 'success')
                 return redirect(next_page or url_for('dashboard'))
             else:
@@ -95,8 +101,16 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        flash('Your account has been created! You can now log in.', 'success')
-        return redirect(url_for('login'))
+        # Log the user in after registration
+        login_user(user)
+        
+        # Get featured courses for the welcome page
+        featured_courses = Course.query.filter_by(is_active=True).order_by(
+            func.random()
+        ).limit(3).all()
+        
+        flash('Your account has been created successfully!', 'success')
+        return render_template('welcome.html', user=user, featured_courses=featured_courses)
     
     return render_template('register.html', form=form)
 
@@ -344,6 +358,7 @@ def admin_delete_enrollment(enrollment_id):
 
 # Course routes
 @app.route('/courses')
+@login_required
 def courses_index():
     # Get filter parameters
     search = request.args.get('search', '')
@@ -425,6 +440,7 @@ def create_course():
     return render_template('courses/create.html', form=form)
 
 @app.route('/courses/<int:course_id>')
+@login_required
 def view_course(course_id):
     course = Course.query.get_or_404(course_id)
     enrollment = None

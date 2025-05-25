@@ -35,10 +35,10 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('index') }}">Home</a>
                     </li>
+                    {% if current_user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('courses_index') }}">Courses</a>
                     </li>
-                    {% if current_user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
                     </li>
@@ -140,8 +140,8 @@
                     <h5>Quick Links</h5>
                     <ul class="list-unstyled">
                         <li><a href="{{ url_for('index') }}">Home</a></li>
-                        <li><a href="{{ url_for('courses_index') }}">Courses</a></li>
                         {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('courses_index') }}">Courses</a></li>
                         <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
                         {% else %}
                         <li><a href="{{ url_for('login') }}">Login</a></li>

@@ -18,4 +18,4 @@ def check_login(username, password):
 
 # ព្យាយាមចូលប្រើប្រាស់ជាមួយ testuser
 print("\nTesting login with testuser:")
-check_login('testuser', 'password123') 
+check_login('morkmongkul', 'Monkhol123') 
