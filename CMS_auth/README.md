@@ -1,215 +1,212 @@
-# CMS Authentication System
+# Course Management System (CMS)
 
-A robust Content Management System (CMS) authentication system built with Flask, featuring secure user management, AWS S3 integration, and PostgreSQL database.
+A web-based course management system built with Flask that allows instructors to create and manage courses, and students to enroll in courses.
 
 ## Features
 
-- Secure user authentication and authorization
-- PostgreSQL database integration
-- AWS S3 file storage
-- Flask-Login for session management
-- Database migrations using Flask-Migrate
-- Form validation and CSRF protection
-- Secure password hashing
-- Logging system for debugging
-- Production-ready with Gunicorn support
+- **User Management**
+  - User registration and authentication
+  - Role-based access control (Admin, Instructor, Student)
+  - Profile management
 
-## Prerequisites
+- **Course Management**
+  - Create and edit courses
+  - Upload course thumbnails
+  - Add course videos
+  - Set course capacity and status
 
-Before setting up the project, ensure you have the following installed:
+- **Enrollment System**
+  - Students can enroll in courses
+  - Enrollment status tracking
+  - Course capacity management
 
-- Python 3.8 or higher
-- PostgreSQL 12 or higher
-- Git
-- AWS account with S3 access
-- pip (Python package installer)
+- **Administrative Features**
+  - User management
+  - Course oversight
+  - System statistics
 
-## Local Development Setup
+## Technology Stack
 
-### 1. Clone the Repository
+- **Backend**: Python/Flask
+- **Database**: PostgreSQL
+- **ORM**: SQLAlchemy
+- **Frontend**: Bootstrap, JavaScript
+- **Authentication**: Flask-Login
+- **Forms**: Flask-WTF
+- **File Upload**: Werkzeug
 
+## Installation
+
+1. Clone the repository:
 ```bash
 git clone <repository-url>
 cd CMS_auth
 ```
 
-### 2. Set Up Python Virtual Environment
-
+2. Create and activate virtual environment:
 ```bash
-# Create virtual environment
 python -m venv venv
-
-# Activate virtual environment
-# For Windows:
-venv\Scripts\activate
-# For macOS/Linux:
-source venv/bin/activate
+source venv/bin/activate  # Unix
+# or
+venv\Scripts\activate     # Windows
 ```
 
-### 3. Install Dependencies
-
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Database Setup
-
-1. Install PostgreSQL if not already installed
-   - [PostgreSQL Downloads](https://www.postgresql.org/download/)
-
-2. Create a new PostgreSQL database:
-```bash
-psql -U postgres
-CREATE DATABASE your_database_name;
-```
-
-### 5. Environment Configuration
-
-1. Create a `.env` file in the project root:
+4. Set up environment variables:
 ```bash
 cp env.example .env
+# Edit .env with your configuration
 ```
 
-2. Update the `.env` file with your configurations:
-```plaintext
-# Application settings
-FLASK_APP=main.py
-FLASK_ENV=development  # Change to production in production environment
-
-# Security
-SECRET_KEY=your-secure-secret-key
-WTF_CSRF_SECRET_KEY=your-secure-csrf-key
-
-# Database connection
-DATABASE_URL=postgresql://username:password@localhost:5432/your_database_name
-
-# AWS Configuration
-AWS_ACCESS_KEY_ID=your-aws-access-key
-AWS_SECRET_ACCESS_KEY=your-aws-secret-key
-AWS_DEFAULT_REGION=your-aws-region
-S3_BUCKET_NAME=your-s3-bucket-name
-
-# File uploads
-MAX_CONTENT_LENGTH=16777216  # 16MB in bytes
-```
-
-### 6. Generate Security Keys
-
-Run the provided script to generate secure keys:
+5. Initialize the database:
 ```bash
-python generate_keys.py
-```
-
-Copy the generated keys to your `.env` file.
-
-### 7. Database Migration
-
-Initialize and apply database migrations:
-```bash
-flask db init
-flask db migrate -m "Initial migration"
 flask db upgrade
 ```
 
-### 8. Create Admin User
-
-Run the script to create your first admin user:
-```bash
-python create_new_user.py
-```
-
-### 9. Run the Application
-
-Start the development server:
+6. Run the application:
 ```bash
 flask run
 ```
 
-The application will be available at `http://localhost:5000`
+## Deployment on Render
 
-## AWS S3 Setup
+This application can be easily deployed to Render.com by following these steps:
 
-1. Create an AWS account if you don't have one
-2. Create a new S3 bucket:
-   - Go to AWS Console → S3
-   - Click "Create bucket"
-   - Choose a unique bucket name
-   - Configure bucket settings (enable versioning if needed)
-   - Set appropriate permissions
+1. Create a [Render account](https://render.com) if you don't have one
 
-3. Create IAM User:
-   - Go to AWS Console → IAM
-   - Create a new user with programmatic access
-   - Attach AmazonS3FullAccess policy (or create a custom policy with limited scope)
-   - Save the Access Key ID and Secret Access Key
+2. Create a new PostgreSQL database in Render:
+   - Go to Dashboard > New > PostgreSQL
+   - Provide a name for your database
+   - Select a suitable plan
+   - Note your database connection details for use in the environment variables
 
-4. Update your `.env` file with the AWS credentials
+3. Create a new Web Service in Render:
+   - Go to Dashboard > New > Web Service
+   - Connect your GitHub repository
+   - Fill in the following details:
+     - **Name**: Your application name
+     - **Environment**: Python 3
+     - **Build Command**: `./build.sh`
+     - **Start Command**: `gunicorn -c gunicorn.conf.py main:app`
+     - **Branch**: main (or your deployment branch)
 
-## Production Deployment
+4. Set the environment variables under the "Environment" tab:
+   - `FLASK_APP`: main.py
+   - `FLASK_ENV`: production
+   - `SECRET_KEY`: (generate a secure random key)
+   - `WTF_CSRF_SECRET_KEY`: (generate a secure random key)
+   - `DATABASE_URL`: (use the Internal Database URL from your PostgreSQL service)
 
-For production deployment:
+5. Enable automatic deploys if desired
 
-1. Update environment variables:
-```plaintext
-FLASK_ENV=production
+6. Click "Create Web Service" and Render will build and deploy your application
+
+Your application will be available at your Render-provided URL once the deployment process completes.
+
+## Project Structure
+
+```
+CMS_auth/
+├── app.py              # Flask application initialization
+├── config.py           # Configuration settings
+├── models.py           # Database models
+├── forms.py            # Form classes
+├── routes.py           # Route handlers
+├── static/            
+│   └── uploads/        # Uploaded files
+├── templates/          # HTML templates
+├── migrations/         # Database migrations
+└── requirements.txt    # Project dependencies
 ```
 
-2. Set up Gunicorn:
+## Database Schema
+
+### Users Table
+- id (Primary Key)
+- username (Unique)
+- email (Unique)
+- password_hash
+- role (admin/instructor/student)
+- profile_image_url
+- created_at
+- updated_at
+
+### Courses Table
+- id (Primary Key)
+- title
+- description
+- instructor_id (Foreign Key)
+- code (Unique)
+- thumbnail_url
+- max_students
+- is_active
+- created_at
+- updated_at
+
+### Enrollments Table
+- id (Primary Key)
+- student_id (Foreign Key)
+- course_id (Foreign Key)
+- status
+- enrolled_at
+
+### Course Videos Table
+- id (Primary Key)
+- course_id (Foreign Key)
+- title
+- video_type
+- video_url
+- order
+- created_at
+
+## Role-Based Access
+
+1. **Admin**
+   - Manage all users
+   - Manage all courses
+   - View system statistics
+   - Full system access
+
+2. **Instructor**
+   - Create and manage own courses
+   - Add course content
+   - View enrolled students
+   - Manage course videos
+
+3. **Student**
+   - View available courses
+   - Enroll in courses
+   - Access course content
+   - View enrollment history
+
+## Security Features
+
+- Password hashing
+- CSRF protection
+- Session management
+- Role-based access control
+- Secure file uploads
+- Input validation
+
+## Development
+
+To contribute to this project:
+
+1. Create a new branch
+2. Make your changes
+3. Submit a pull request
+
+## Testing
+
+Run tests using:
 ```bash
-gunicorn -c gunicorn.conf.py main:app
+python -m pytest
 ```
-
-3. Configure your web server (Nginx/Apache) to proxy requests to Gunicorn
-
-## Database Maintenance
-
-### Backup Database
-```bash
-pg_dump -U username -d database_name > backup.sql
-```
-
-### Restore Database
-```bash
-psql -U username -d database_name < backup.sql
-```
-
-### Run Database Migrations
-```bash
-# Create a new migration
-flask db migrate -m "Description of changes"
-
-# Apply migrations
-flask db upgrade
-
-# Rollback migrations
-flask db downgrade
-```
-
-## Troubleshooting
-
-- Check `flask_debug.log` and `error.log` for detailed error messages
-- Ensure all environment variables are properly set
-- Verify database connection string
-- Check AWS credentials and S3 bucket permissions
-- Ensure proper file permissions on uploaded content
-
-## Security Notes
-
-- Always use HTTPS in production
-- Regularly update dependencies
-- Keep your secret keys secure and never commit them to version control
-- Regularly backup your database
-- Monitor application logs for suspicious activities
-- Use strong passwords for admin accounts
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
 
 ## License
 
-[Your License Information]
+This project is licensed under the MIT License - see the LICENSE file for details. 
