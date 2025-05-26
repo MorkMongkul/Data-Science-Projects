@@ -212,4 +212,4 @@ flask db downgrade
 
 ## License
 
-[Your License Information] 
+[Your License Information]
