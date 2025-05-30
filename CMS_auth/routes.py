@@ -188,9 +188,11 @@ def delete_old_s3_image(url):
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    # Only include role field for admin users
     form = UserUpdateForm(
         original_username=current_user.username,
-        original_email=current_user.email
+        original_email=current_user.email,
+        include_role=current_user.is_admin()  # Pass whether to include role field
     )
     
     if form.validate_on_submit():
@@ -201,7 +203,7 @@ def profile():
             current_user.last_name = form.last_name.data
             
             # Only admin can change roles
-            if current_user.is_admin():
+            if current_user.is_admin() and form.role.data:
                 current_user.role = form.role.data
             
             # Handle profile image upload
@@ -240,7 +242,8 @@ def profile():
         form.email.data = current_user.email
         form.first_name.data = current_user.first_name
         form.last_name.data = current_user.last_name
-        form.role.data = current_user.role
+        if current_user.is_admin():
+            form.role.data = current_user.role
         form.profile_image_url.data = current_user.profile_image_url
     
     # Password change form

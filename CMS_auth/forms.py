@@ -54,10 +54,14 @@ class UserUpdateForm(FlaskForm):
                                   description='If no image is uploaded, you can provide a URL instead')
     submit = SubmitField('Update')
     
-    def __init__(self, original_username, original_email, *args, **kwargs):
+    def __init__(self, original_username, original_email, include_role=False, *args, **kwargs):
         super(UserUpdateForm, self).__init__(*args, **kwargs)
         self.original_username = original_username
         self.original_email = original_email
+        
+        # Remove role field if not an admin
+        if not include_role:
+            del self.role
     
     def validate_username(self, username):
         if username.data != self.original_username:
